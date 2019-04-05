@@ -8,8 +8,8 @@ cfg = {
     'overlap': 0,
     'inputs': [{'name': 'par', "type": "num"}],
     'options': [
-        {'name': 'upper_thres', "type": "num", 'initval': 90},
-        {'name': 'lower_thres', "type": "num", 'initval': 10}
+        {'name': 'upper_th', 'init': 90},
+        {'name': 'lower_th', 'init': 10}
         ],
     'outputs': [{"type": "num"}]
 }
@@ -20,8 +20,6 @@ def run(inp, opt, cfg):
 
     vals = [o['val'] for o in p]
 
-    print(vals)
-
     ut = np.percentile(vals, opt['upper_thres'])
     lt = np.percentile(vals, opt['lower_thres'])
 
@@ -31,4 +29,3 @@ def run(inp, opt, cfg):
             ret.append(o)
 
     return [ret]
-

@@ -129,7 +129,7 @@ def detect_window_minima(data, wind):
     while i < len(data) - span:  # Because i cannot be changed within a for statement
         ifrom = max(0, i - span)
         ito = min(i + span, len(data))
-        idx_min = ifrom + np.argmin(data[ifrom:ito])
+        idx_min = min_arg(data, ifrom, ito)
         if idx_min == i:
             ret.append(i)
         elif i < idx_min:
@@ -222,6 +222,28 @@ def band_pass(data, srate, fl, fh):
     return np.real(np.fft.ifft(y)[:oldlen])
 
 
+def low_pass(data, srate, fl):
+    """
+    low pass filter
+    """
+    oldlen = len(data)
+    newlen = next_power_of_2(oldlen)
+
+    # srate / nsamp = Frequency increment
+    # (0 ~ nsamp-1) * srate / nsamp = frequency range
+    y = np.fft.fft(data, newlen)
+
+    # filtering
+    half = math.ceil(newlen / 2)
+    for i in range(half):
+        f = i * srate / newlen
+        if f > fl:
+            y[i] = y[newlen - 1 - i] = 0
+
+    # inverse transform
+    return np.real(np.fft.ifft(y)[:oldlen])
+
+
 def find_nearest(data, value):
     """
     Find the nearest value and return it
@@ -247,7 +269,7 @@ def detect_qrs(data, srate):
         y2.append(2 * y1[i+2] + y1[i+1] - y1[i-1] - 2*y1[i-2])
     y2 += [0, 0]
 
-    y3 = [(x * x) for x in y2]  # Squaring
+    y3 = [x ** 2 for x in y2]  # Squaring
 
     # Moving Average filter
     # Acts as a smoother and performs a moving window integrator over 150ms

@@ -15,7 +15,7 @@ def run(inp, opt, cfg):
     p = inp['p']
 
     if len(p) == 0:
-        return [[]]
+        return
 
     ret = np.mean([o['val'] for o in p])
 

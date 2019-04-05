@@ -11,10 +11,10 @@ cfg = {
     'interval': 300,  # 5 min
     'inputs': [{'name': 'ecg', 'type': 'wav'}],
     'outputs': [
-        {'name': 'NNI', 'type': 'num', 'unit': 'ms', 'min': 500, 'max': 2500},
         {'name': 'SDNN', 'type': 'num', 'unit': 'ms', 'min': 0, 'max': 100},
         {'name': 'RMSSD', 'type': 'num', 'unit': 'ms', 'min': 0, 'max': 10},
         {'name': 'pNN50', 'type': 'num', 'unit': '%', 'min': 0, 'max': 5},
+        {'name': 'NNI', 'type': 'num', 'unit': 'ms', 'min': 500, 'max': 2500},
         {'name': 'TP', 'type': 'num', 'unit': 'ms2', 'min': 0, 'max': 200000},
         {'name': 'VLF', 'type': 'num', 'unit': 'ms2', 'min': 0, 'max': 200000},
         {'name': 'LF', 'type': 'num', 'unit': 'ms2', 'min': 0, 'max': 10000},
@@ -140,10 +140,10 @@ def run(inp, opt, cfg):
 
     dt_last = cfg['interval']
     return [
-        ret_nni,
         [{'dt': dt_last, 'val': sdnn}],
         [{'dt': dt_last, 'val': rmssdnni}],
         [{'dt': dt_last, 'val': pnn50}],
+        ret_nni,
         [{'dt': dt_last, 'val': tp}],
         [{'dt': dt_last, 'val': vlf}],
         [{'dt': dt_last, 'val': lf}],
