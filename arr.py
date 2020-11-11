@@ -280,22 +280,16 @@ def detect_qrs(data, srate):
         ito = min(i + int(size / 2), len(y3))
         y4.append(np.mean(y3[ifrom:ito]))
 
-    y5 = band_pass(y4, srate, 0.5, 8)  # filtering -> remove drifting and abrupt change
-    p1 = detect_window_maxima(y5, 0.3 * srate)  # find max in 300 ms
+    p1 = detect_window_maxima(y4, 0.3 * srate)  # find max in 300 ms
 
     # threshold -> 0.5 times the median value of the peak within 10 seconds before and after
-    # peak_vals = []
-    # for(i = 0 i < p1.length i++)
-    #         peak_vals.push(y5[p1[i]])
-    # th = peak_vals.median() * 0.5
-    # peak_vals = null
     p2 = []
     for idx in p1:
-        val = y5[idx]
+        val = y4[idx]
         peak_vals = []
         for idx2 in p1:
             if abs(idx - idx2) < srate * 10:
-                peak_vals.append(y5[idx2])
+                peak_vals.append(y4[idx2])
         th = np.median(peak_vals) * 0.75
         if val >= th:
             p2.append(idx)
