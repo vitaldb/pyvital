@@ -295,7 +295,7 @@ def detect_qrs(data, srate):
         peak_vals = []
         for idx2 in p1:
             if abs(idx - idx2) < srate * 10:
-                peak_vals.append(y5[idx])
+                peak_vals.append(y5[idx2])
         th = np.median(peak_vals) * 0.75
         if val >= th:
             p2.append(idx)
