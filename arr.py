@@ -1,7 +1,6 @@
 import math
 import numpy as np
 from numbers import Number
-import copy
 
 def print_all(data):
     """
@@ -389,19 +388,22 @@ def resample(data, dest_len, avg=False):
 
     src_len = len(data)
     if src_len == 0:
-        return [0] * dest_len
+        return np.zeros(dest_len)
 
     if dest_len == 1: # average
         if avg:
-            return [np.mean(data)]
+            return np.array([np.mean(data)])
         else:
-            return [data[0]]
+            return np.array([data[0]])
 
     if src_len == 1: # copy
-        return [data[0]] * dest_len
+        return np.full(dest_len, data[0])
+
+    if not isinstance(data, np.ndarray):
+        data = np.array(data)
 
     if src_len == dest_len:
-        return copy.deepcopy(data)
+        return np.copy(data)
 
     if src_len < dest_len:  # upsample -> linear interpolate
         ret = []
@@ -413,7 +415,7 @@ def resample(data, dest_len, avg=False):
             val1 = data[srcx1]
             val2 = data[srcx2]
             ret.append(val1 * (1 - factor) + val2 * factor)
-        return ret
+        return np.array(ret)
 
     #if src_len > dest_len: # downsample -> nearest or avg
     if avg:
@@ -422,13 +424,13 @@ def resample(data, dest_len, avg=False):
             src_from = int(x * src_len / dest_len)
             src_to = int((x + 1) * src_len / dest_len)
             ret.append(np.mean(data[src_from:src_to]))
-        return ret
+        return np.array(ret)
 
     ret = []
     for x in range(dest_len):
         srcx = int(x * src_len / dest_len)
         ret.append(data[srcx])
-    return ret
+    return np.array(ret)
 
 
 def resample_hz(data, srate_from, srate_to, avg=False):
@@ -466,13 +468,14 @@ def estimate_heart_freq(data, srate, fl=30/60, fh=200/60):
 def detect_peaks(data, srate):
     """
     obrain maximum and minimum values from blood pressure or pleth waveform
-    the first min may not be found because all max is found and min is found in front of it
-    for the reason, the first max does not look for the min before it
-    and the minlist is always one less than the maxlist
+    the minlist is always one less than the maxlist
     """
     ret = []
 
-    raw_data = copy.deepcopy(data)
+    if not isinstance(data, np.ndarray):
+        data = np.array(data)
+
+    raw_data = np.copy(data)
     raw_srate = srate
 
     # resampling rate to 100Hz
