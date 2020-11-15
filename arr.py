@@ -1,6 +1,7 @@
 import math
 import numpy as np
-from numbers import Number
+import numbers
+from scipy.signal import butter, lfilter
 
 def print_all(data):
     """
@@ -40,14 +41,18 @@ def get_samples(data, srate, idxes):
 
 
 def is_num(x):
-    if not isinstance(x, Number):
+    if not isinstance(x, numbers.Number):
         return False
     return math.isfinite(x)
 
 
-def exclude_undefined(data):
+def exclude_undefined(a):
+    if not isinstance(a, np.ndarray):
+        a = np.array(a)
+    return a[~np.isnan(a)]
+
     ret = []
-    for x in data:
+    for x in a:
         if is_num(x):
             ret.append(x)
     return ret
@@ -115,34 +120,15 @@ def detect_window_maxima(data, wind):
         elif i < idx_max:
             i = idx_max - 1  # jump
         i += 1
-    return ret
+    return np.array(ret)
 
 
-def detect_window_minima(data, wind):
-    """
-    Returns the index of the sample which is the minimum from the samples in the specified window.
-    """
-    span = int(wind / 2)
-    ret = []
-    i = span
-    while i < len(data) - span:  # Because i cannot be changed within a for statement
-        ifrom = max(0, i - span)
-        ito = min(i + span, len(data))
-        idx_min = min_arg(data, ifrom, ito)
-        if idx_min == i:
-            ret.append(i)
-        elif i < idx_min:
-            i = idx_min - 1  # jump
-        i += 1
-    return ret
-
-
-def detect_maxima(data, tr = 0):
+def detect_maxima(data, tr=0):
     """
     Find indexes of x such that xk-1 <= x >= xk+1
     data: arr
     tr: percentile threshold (0-100)
-    return: detect peak above tr
+    return: sorted peak index above tr
     """
     tval = np.percentile(data, tr)
     ret = []
@@ -196,12 +182,18 @@ def next_power_of_2(x):
     return 2 ** math.ceil(math.log(x) / math.log(2))
 
 
-def band_pass(data, srate, fl, fh):
+def band_pass(data, srate, fl, fh, order=5):
     """
     band pass filter
     """
     if fl > fh:
         return band_pass(data, srate, fh, fl)
+
+    nyq = 0.5 * srate
+    low = fl / nyq
+    high = fh / nyq
+    b, a = butter(order, [low, high], btype='bandpass')
+    return lfilter(b, a, data)
 
     oldlen = len(data)
     newlen = next_power_of_2(oldlen)
@@ -221,10 +213,15 @@ def band_pass(data, srate, fl, fh):
     return np.real(np.fft.ifft(y)[:oldlen])
 
 
-def low_pass(data, srate, fl):
+def low_pass(data, srate, fl, order=5):
     """
     low pass filter
     """
+    nyq = 0.5 * srate
+    low = fl / nyq
+    b, a = butter(order, low, btype='lowpass')
+    return lfilter(b, a, data)
+
     oldlen = len(data)
     newlen = next_power_of_2(oldlen)
 
@@ -243,15 +240,27 @@ def low_pass(data, srate, fl):
     return np.real(np.fft.ifft(y)[:oldlen])
 
 
-def find_nearest(data, value):
+def find_nearest(a, value):
     """
-    Find the nearest value and return it
+    Find the nearest value in a "sorted" np array
     :param data: array
     :param value: value to find
     :return: nearest value
+    
+    find_nearest([10,20,30,40,50], 21) -> 20
+    find_nearest([10,20,30,40,50], 27) -> 30
     """
-    idx = np.abs(np.array(data) - value).argmin()
-    return data[idx]
+    idx = np.searchsorted(a, value)
+    if idx > 0 and (idx == len(a) or math.fabs(value - a[idx-1]) < math.fabs(value - a[idx])):
+        return a[idx-1]
+    else:
+        return a[idx]
+
+    """
+    Find the nearest value in a np array
+    """
+    idx = np.abs(np.array(a) - value).argmin()
+    return a[idx]
 
 
 def detect_qrs(data, srate):
@@ -487,7 +496,6 @@ def detect_peaks(data, srate):
     fh = 200 / 60  # 3.3
     fl = 30 / 60  # 0.5
 
-    # console.log('detect_peaks');
     # estimate hr
     y1 = band_pass(data, srate, 0.5 * fl, 3 * fh)
 
@@ -539,6 +547,7 @@ def detect_peaks(data, srate):
 
     # find all maxima before preprocessing
     m = detect_maxima(data, 0)
+    m = np.array(m)
 
     # correct peaks location error due to preprocessing
     last = -1
@@ -554,11 +563,14 @@ def detect_peaks(data, srate):
     # Make sure if there is rpeak not included in the PC.
     i = -1
     while i < len(pc):
-        idx_from = 0
-        if i >= 0:
+        if i < 0:
+            idx_from = 0
+        else:
             idx_from = pc[i]
-        idx_to = len(data)-1
-        if i < len(pc) - 1:
+        
+        if i >= len(pc) - 1:
+            idx_to = len(data)-1
+        else:
             idx_to = pc[i+1]
 
         # find false negative and fill it
@@ -574,9 +586,9 @@ def detect_peaks(data, srate):
         # find the maximum value from idx_from to idx_to
         idx_max = -1
         val_max = 0
-        for idx_cand in m:
-            if idx_cand <= idx_from:
-                continue
+        
+        for j in range(np.searchsorted(m, idx_from), len(m)):
+            idx_cand = m[j]
             if idx_cand >= idx_to:
                 break
             if idx_max == -1 or val_max < data[idx_cand]:
@@ -595,7 +607,7 @@ def detect_peaks(data, srate):
         idx1 = pc[i]
         idx2 = pc[i+1]
         if idx2 - idx1 < 0.75 * ht * srate:  # false positive
-            dele = i + 1 # default: delete i+1
+            idx_del = i + 1 # default: delete i+1
             if 1 < i < len(pc) - 2:
                 # minimize heart rate variability
                 idx_prev = pc[i-1]
@@ -606,16 +618,16 @@ def detect_peaks(data, srate):
                 d2 = abs(idx_next + idx_prev - 2 * idx2)
 
                 if d1 > d2:
-                    dele = i
+                    idx_del = i
                 else:
-                    dele = i+1
+                    idx_del = i+1
 
             elif i == 0:
-                dele = i
+                idx_del = i
             elif i == len(pc) - 2:
-                dele = i+1
+                idx_del = i+1
 
-            pc.pop(dele)
+            pc.pop(idx_del)
             i -= 1
         i += 1
 
@@ -631,10 +643,10 @@ def detect_peaks(data, srate):
     # We downsample x to srate to get maxidxs. ex) 1000 Hz -> 100 Hz
     # Therefore, the position found by maxidx may differ by raw_srate / srate.
     maxlist = []
-    convpos = math.ceil(raw_srate / srate / 2)
+    ratio = math.ceil(raw_srate / srate)
     for maxidx in pc:
         idx = int(maxidx * raw_srate / srate) # extimated idx -> not precise
-        maxlist.append(max_idx(raw_data, idx - convpos - 1, idx + int(raw_srate / srate) + convpos + 1))
+        maxlist.append(max_idx(raw_data, idx - ratio - 1, idx + ratio + 1))
 
     # get the minlist from maxlist
     minlist = []
@@ -709,3 +721,37 @@ def estimate_resp_rate(data, srate):
     # rr = 60 * srate / np.mean(resp_lens)
     #
     # return rr
+
+
+if __name__ == '__main__':
+    import pandas as pd
+
+    df_trks = pd.read_csv("https://api.vitaldb.net/trks")
+
+    caseid = 1
+    tid = df_trks[(df_trks['caseid'] == caseid) & (df_trks['tname'] == 'SNUADC/ART')]['tid'].values[0]
+    vals = pd.read_csv('https://api.vitaldb.net/' + tid).values
+
+    srate = 500
+
+    art = vals[:,1]
+    art = exclude_undefined(art)
+    # peaks = detect_peaks(art, srate)
+    # print(peaks)
+    #import cProfile
+    #cProfile.run('detect_peaks(art, srate)')
+    #quit()
+
+    idx_start = 3600 * srate
+    art = vals[idx_start:idx_start + 8 * srate, 1]
+    art = exclude_undefined(art)
+    peaks = detect_peaks(art, srate)
+
+    print(peaks)
+
+    import matplotlib.pyplot as plt
+    plt.figure(figsize=(15,5))
+    plt.plot(art, color='r')
+    plt.plot(peaks[0], [art[i] for i in peaks[0]], 'bo')
+    plt.plot(peaks[1], [art[i] for i in peaks[1]], 'go')
+    plt.show()
