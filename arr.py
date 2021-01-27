@@ -63,7 +63,10 @@ def extend_undefined(data):
     for i in range(len(data)):
         if is_num(data[i]): # find the value which is not undefined
             #  Change all previous values to the value
-            data = [data[i]] * i + data[i:].tolist() # updated by GARAM
+            if type(data) == list:
+	            data = [data[i]] * i + data[i:]
+            else:
+                data[:i] = data[i]
             break
         if i == len(data)-1: # Set all to 0 if all are undefined
             return [0] * len(data)
