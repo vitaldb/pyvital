@@ -1,30 +1,27 @@
 import arr
 import numpy as np
 import math
+import time
+import scipy.interpolate
+import scipy.signal
 
-last_ppv = 0;
+last_ppv = 0
+last_spv = 0
 
 cfg = {
-    'name': 'ABP - Pulse Pressure Variation',
-    'group': 'Medical algorithms',
+    'name': 'Pulse Pressure Variation',
+    'group': 'ABP',
     'desc': 'Calculate pulse pressure variation using modified version of the method in the reference',
     'reference': 'Aboy et al, An Enhanced Automatic Algorithm for Estimation of Respiratory Variations in Arterial Pulse Pressure During Regions of Abrupt Hemodynamic Changes. IEEE TRANSACTIONS ON BIOMEDICAL ENGINEERING, VOL. 56, NO. 10, OCTOBER 2009',
-    'overlap': 3,
-    'interval': 30,
-    'inputs': [{'name': 'art1', 'type': 'wav'}],
+    'overlap': 20,
+    'interval': 30, # 30초는 되어야 rr을 추정 가능함
+    'inputs': [{'name': 'ART', 'type': 'wav'}],
     'outputs': [
-        {'name': 'ppv', 'type': 'num', 'min': 0, 'max': 30, 'unit': '%'},
-        {'name': 'pulse_val', 'type': 'num', 'min': 0, 'max': 100, 'unit': 'mmHg'},
-        {'name': 'rr', 'type': 'num', 'min': 0, 'max': 30, 'unit': '/min'}
+        {'name': 'PPV', 'type': 'num', 'min': 0, 'max': 30, 'unit': '%'},
+        {'name': 'SPV', 'type': 'num', 'min': 0, 'max': 30, 'unit': '%'},
+        {'name': 'ART_RR', 'type': 'num', 'min': 0, 'max': 30, 'unit': '/min'}
         ]
 }
-
-
-def b(u):
-    if -5 <= u <= 5:
-        return math.exp(-u * u / 2)
-    else:
-        return 0
 
 
 def run(inp, opt, cfg):
@@ -33,10 +30,10 @@ def run(inp, opt, cfg):
     :param art: arterial waveform
     :return: max, min, upper envelope, lower envelope, respiratory rate, ppv
     """
-    global last_ppv
+    global last_ppv, last_spv
 
-    data = arr.interp_undefined(inp['art1']['vals'])
-    srate = inp['art1']['srate']
+    data = arr.interp_undefined(inp['ART']['vals'])
+    srate = inp['ART']['srate']
 
     data = arr.resample_hz(data, srate, 100)
     srate = 100
@@ -81,60 +78,72 @@ def run(inp, opt, cfg):
         return
 
     # remove beats with correlation < 0.9
-    pulse_vals = []
+    pp_vals = []
+    sp_vals = []
     for i in range(0, len(minlist)-1):
-        if not beats_128[i]:
+        if beats_128[i] is None or not len(beats_128[i]):
             continue
         if np.corrcoef(avgbeat, beats_128[i])[0, 1] < 0.9:
             continue
         pp = data[maxlist[i]] - data[minlist[i]]  # pulse pressure
-        pulse_vals.append({'dt': minlist[i] / srate, 'val': pp})
+        sp = data[maxlist[i]]
+        pp_vals.append({'dt': minlist[i] / srate, 'val': pp})
+        sp_vals.append({'dt': minlist[i] / srate, 'val': sp})
 
-    # estimates the upper env(n) and lower env(n) envelopes
-    xa = np.array([data[idx] for idx in minlist])
-    lower_env = np.array([0.0] * len(data))
-    for i in range(len(data)):
-        be = np.array([b((i - idx) / (0.2 * srate)) for idx in minlist])
-        s = sum(be)
-        if s != 0:
-            lower_env[i] = np.dot(xa, be) / s
-
-    xb = np.array([data[idx] for idx in maxlist])
-    upper_env = np.array([0.0] * len(data))
-    for i in range(len(data)):
-        be = np.array([b((i - idx) / (0.2 * srate)) for idx in maxlist])
-        s = sum(be)
-        if s != 0:
-            upper_env[i] = np.dot(xb, be) / s
-
-    pulse_env = upper_env - lower_env
-    pulse_env[pulse_env < 0.0] = 0.0
+    dtstart = time.time()
 
     # estimates resp rate
-    rr = arr.estimate_resp_rate(pulse_env, srate)
+    # upper env
+    idx_start = max(min(minlist),min(maxlist))
+    idx_end = min(max(minlist),max(maxlist))
+    xa = scipy.interpolate.CubicSpline(maxlist, [data[idx] for idx in maxlist])(np.arange(idx_start, idx_end))
+
+    # lower env
+    xb = scipy.interpolate.CubicSpline(minlist, [data[idx] for idx in minlist])(np.arange(idx_start, idx_end))
+    rr = arr.estimate_resp_rate(xa-xb, srate)
+
+    dtend = time.time()
+    #print('rr {}'.format(rr))
 
     # split by respiration
     nsamp_in_breath = int(srate * 60 / rr)
     m = int(len(data) / nsamp_in_breath)  # m segments exist
+
     raw_pps = []
-    pps = []
+    raw_sps = []
+    ppvs = []
+    spvs = []
     for ibreath in np.arange(0, m - 1, 0.5):
         pps_breath = []
-        for ppe in pulse_vals:
+        sps_breath = []
+
+        for ppe in pp_vals:
             if ibreath * nsamp_in_breath < ppe['dt'] * srate < (ibreath + 1) * nsamp_in_breath:
                 pps_breath.append(ppe['val'])
+
+        for spe in sp_vals:
+            if ibreath * nsamp_in_breath < spe['dt'] * srate < (ibreath + 1) * nsamp_in_breath:
+                sps_breath.append(spe['val'])
+
         if len(pps_breath) < 4:
+            continue
+
+        if len(sps_breath) < 4:
             continue
 
         pp_min = min(pps_breath)
         pp_max = max(pps_breath)
+        sp_min = min(sps_breath)
+        sp_max = max(sps_breath)
 
-        ppv = 2 * (pp_max - pp_min) / (pp_max + pp_min) * 100  # estimate
+        ppv = (pp_max - pp_min) / (pp_max + pp_min) * 200
         if not 0 < ppv < 50:
             continue
 
-#       raw_pps.append({'dt': (ibreath * nsamp_in_breath) / srate, 'val': pp})
-        #
+        spv = (sp_max - sp_min) / (sp_max + sp_min) * 200
+        if not 0 < spv < 50:
+            continue
+
         # kalman filter
         if last_ppv == 0: # first time
             last_ppv = ppv
@@ -144,12 +153,26 @@ def run(inp, opt, cfg):
             ppv = (ppv + last_ppv) * 0.5
             last_ppv = ppv
         else:
-            continue  # no update
+            continue
 
-        pps.append({'dt': ((ibreath + 1) * nsamp_in_breath) / srate, 'val': int(ppv)})
+        if last_spv == 0: # first time
+            last_spv = spv
+        elif abs(last_spv - spv) <= 1.0:
+            spv = last_spv
+        elif abs(last_spv - spv) <= 25.0:  # ppv cannot be changed abruptly
+            spv = (spv + last_spv) * 0.5
+            last_spv = spv
+        else:
+            continue
+
+        ppvs.append(ppv)
+        spvs.append(spv)
+
+    median_ppv = np.median(ppvs)
+    median_spv = np.median(spvs)
 
     return [
-        pps,
-        pulse_vals,
+        [{'dt': cfg['interval'], 'val': median_ppv}],
+        [{'dt': cfg['interval'], 'val': median_spv}],
         [{'dt': cfg['interval'], 'val': rr}]
     ]
