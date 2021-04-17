@@ -195,8 +195,9 @@ def band_pass(data, srate, fl, fh, order=5):
     nyq = 0.5 * srate
     low = fl / nyq
     high = fh / nyq
-    b, a = butter(order, [low, high], btype='bandpass')
-    return lfilter(b, a, data)
+    # 버그 수정 필요함
+    #b, a = butter(order, [low, high], btype='bandpass')
+    #return lfilter(b, a, data)
 
     oldlen = len(data)
     newlen = next_power_of_2(oldlen)
@@ -273,7 +274,7 @@ def detect_qrs(data, srate):
     """
     pcand = detect_window_maxima(data, 0.08 * srate)  # 80ms local peak
 
-    y1 = band_pass(data, srate, 10, 20)  # The qrs value must be one of these.
+    y1 = band_pass(data, srate, 10, 20, 10)  # The qrs value must be 10-20 hz
 
     y2 = [0, 0]  # derivative
     for i in range(2, len(y1)-2):
