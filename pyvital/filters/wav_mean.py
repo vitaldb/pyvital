@@ -1,5 +1,5 @@
+from .. import arr
 import numpy as np
-import arr
 
 cfg = {
     'name': 'Wav - Mean Value',

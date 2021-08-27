@@ -2,7 +2,7 @@ import setuptools
  
 setuptools.setup(
     name="pyvital",
-    version="0.0.1",
+    version="0.0.2",
     author="VitalLab",
     author_email="vital@snu.ac.kr",
     description="Python Libray for Biosignal Analysis",

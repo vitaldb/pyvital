@@ -1,4 +1,4 @@
-import arr
+from .. import arr
 import numpy as np
 from math import factorial
 

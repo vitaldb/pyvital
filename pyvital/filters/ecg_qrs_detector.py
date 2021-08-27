@@ -1,4 +1,4 @@
-import arr
+from .. import arr
 
 cfg = {
     'name': 'ECG - QRS detector',

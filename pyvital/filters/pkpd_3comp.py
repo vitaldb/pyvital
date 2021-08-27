@@ -1,3 +1,4 @@
+from .. import arr
 import numpy as np
 
 last_a1 = 0

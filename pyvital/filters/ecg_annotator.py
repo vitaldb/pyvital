@@ -1,6 +1,6 @@
+from .. import arr
 import numpy as np
 import math
-import arr
 import copy
 import pywt
 

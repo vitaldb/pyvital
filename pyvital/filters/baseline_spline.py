@@ -1,4 +1,4 @@
-import arr
+from .. import arr
 
 cfg = {
     'name': 'Baseline - Cubic Spline',

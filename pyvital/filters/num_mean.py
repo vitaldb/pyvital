@@ -1,12 +1,13 @@
+from .. import arr
 import numpy as np
 
 cfg = {
-    'name': 'Num - Median Value',
+    'name': 'Num - Mean Value',
     'group': 'Statistical processing',
-    'desc': 'Calculate median value from numeric track',
+    'desc': 'Calculate mean value from numeric track',
     'interval': 60,
     'overlap': 0,
-    'inputs': [{'name':'p', "type": "num"}],
+    'inputs': [{'name': 'p', "type": "num"}],
     'outputs': [{"type": "num"}]
 }
 
@@ -17,6 +18,6 @@ def run(inp, opt, cfg):
     if len(p) == 0:
         return
 
-    ret = np.median([o['val'] for o in p])
+    ret = np.mean([o['val'] for o in p])
 
     return [[{"dt": cfg['interval'], "val": ret}]]
