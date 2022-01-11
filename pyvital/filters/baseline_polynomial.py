@@ -1,4 +1,4 @@
-from .. import arr
+from . import arr
 import numpy as np
 
 cfg = {
@@ -7,7 +7,7 @@ cfg = {
     'desc': "Remove baseline wander using polynomial curve",
     'reference': "Chouhan, V.S. Computing: Theory and Applications, 2007. ICCTA '07. International Conference on",
     'interval': 30,
-    'inputs': [{'name': 'ecg', 'type': 'wav'}],
+    'inputs': [{'name': 'ECG', 'type': 'wav'}],
     'outputs': [
         {'type': 'wav', 'name': 'ecg_filtered'},
         {'type': 'wav', 'name': 'baseline'}
@@ -16,8 +16,8 @@ cfg = {
 
 
 def run(inp, opt, cfg):
-    data = arr.interp_undefined(inp['ecg']['vals'])
-    srate = inp['ecg']['srate']
+    data = arr.interp_undefined(inp['ECG']['vals'])
+    srate = inp['ECG']['srate']
 
     span = int(srate * 10)  # Cut every 10 second regardless of interval
     baseline = [0] * len(data)

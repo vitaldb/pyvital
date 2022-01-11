@@ -1,4 +1,4 @@
-from .. import arr
+from . import arr
 import numpy as np
 
 cfg = {
@@ -8,7 +8,7 @@ cfg = {
     'reference': '',
     'overlap': 5,
     'interval': 30,
-    'inputs': [{'name': 'ecg', 'type': 'wav'}, {'name': 'pleth', 'type': 'wav'}],
+    'inputs': [{'name': 'ECG', 'type': 'wav'}, {'name': 'PLETH', 'type': 'wav'}],
     'outputs': [
         {'name': 'PTT_min', 'type': 'num', 'unit': 'ms', 'min': 100, 'max': 500},
         {'name': 'PTT_dmax', 'type': 'num', 'unit': 'ms', 'min': 100, 'max': 500},
@@ -19,11 +19,11 @@ cfg = {
 
 
 def run(inp, opt, cfg):
-    ecg_data = arr.interp_undefined(inp['ecg']['vals'])
-    ecg_srate = inp['ecg']['srate']
+    ecg_data = arr.interp_undefined(inp['ECG']['vals'])
+    ecg_srate = inp['ECG']['srate']
 
-    pleth_data = arr.interp_undefined(inp['pleth']['vals'])
-    pleth_srate = inp['pleth']['srate']
+    pleth_data = arr.interp_undefined(inp['PLETH']['vals'])
+    pleth_srate = inp['PLETH']['srate']
     pleth_data = arr.band_pass(pleth_data, pleth_srate, 0.5, 15)
 
     ecg_rlist = arr.detect_qrs(ecg_data, ecg_srate)

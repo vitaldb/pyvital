@@ -1,4 +1,4 @@
-from .. import arr
+from . import arr
 import numpy as np
 import math
 import copy
@@ -12,7 +12,7 @@ cfg = {
     'reference': 'YC Chesnokov, D Nerukh, RC Glen, Individually Adaptable Automatic QT Detector',
     'overlap': 3,  # 2 sec overlap for HR=30
     'interval': 30,
-    'inputs': [{'name': 'ecg', 'type': 'wav'}],
+    'inputs': [{'name': 'ECG', 'type': 'wav'}],
     'outputs': [{'name': 'ann', 'type': 'str', 'unit': ''}],
     'license': 'GPL'
 }
@@ -57,8 +57,8 @@ def orthfilt(w):
 
 
 def run(inp, opt, cfg):
-    data = arr.interp_undefined(inp['ecg']['vals'])
-    srate = inp['ecg']['srate']
+    data = arr.interp_undefined(inp['ECG']['vals'])
+    srate = inp['ECG']['srate']
 
     min_hr = 40     # min bpm
     max_hr = 200    # max bpm

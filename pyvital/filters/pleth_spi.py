@@ -1,4 +1,4 @@
-from .. import arr
+from . import arr
 import numpy as np
 import scipy.stats as st
 
@@ -45,7 +45,7 @@ cfg = {
     'reference': 'Br J Anaesth. 2007 Apr98(4):447-55',
     'interval': 30, # for 4096 sample/call
     'overlap': 3, # 2 sec overlap for HR=30
-    'inputs': [{'name': 'pleth', 'type': 'wav'}],
+    'inputs': [{'name': 'PLETH', 'type': 'wav'}],
     'outputs': [
         {'name': 'beat', 'type': 'num', 'max':2},
         {'name': 'ppga', 'type': 'num', 'min':0, 'max':100},
@@ -76,8 +76,8 @@ def run(inp, opt, cfg):
     http:#ocw.utm.my/file.php/38/SEB4223/07_ECG_Analysis_1_-_QRS_Detection.ppt%20%5BCompatibility%20Mode%5D.pdf
     """
     global hist_ppga, hist_hbi
-    data = arr.interp_undefined(inp['pleth']['vals'])
-    srate = inp['pleth']['srate']
+    data = arr.interp_undefined(inp['PLETH']['vals'])
+    srate = inp['PLETH']['srate']
 
     minlist, maxlist = arr.detect_peaks(data, srate)  # extract beats
     beat_res = [{'dt':idx / srate, 'val':1} for idx in maxlist]

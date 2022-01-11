@@ -1,4 +1,4 @@
-from .. import arr
+from . import arr
 import numpy as np
 import math
 import copy
@@ -13,7 +13,7 @@ cfg = {
     'reference': 'Narayan SM1, Smith JM. Spectral analysis of periodic fluctuations in electrocardiographic repolarization. IEEE Trans Biomed Eng. 1999 Feb;46(2):203-12.',
     'overlap': 1.5,  # for HR=40
     'interval': 60 * 5,  # 5 min
-    'inputs': [{'name': 'ecg', 'type': 'wav'}],
+    'inputs': [{'name': 'ECG', 'type': 'wav'}],
     'outputs': [
         {'name': 'ecg_filtd', 'type': 'wav'},
         {'name': 'avg_beat', 'type': 'wav'},
@@ -25,8 +25,8 @@ cfg = {
 
 
 def run(inp, opt, cfg):
-    data = arr.interp_undefined(inp['ecg']['vals'])
-    srate = inp['ecg']['srate']
+    data = arr.interp_undefined(inp['ECG']['vals'])
+    srate = inp['ECG']['srate']
 
     ecg_500 = data
     if srate != 500:

@@ -1,4 +1,4 @@
-from .. import arr
+from . import arr
 import numpy as np
 import math
 
@@ -9,7 +9,7 @@ cfg = {
     'reference': 'Aboy et al, An Enhanced Automatic Algorithm for Estimation of Respiratory Variations in Arterial Pulse Pressure During Regions of Abrupt Hemodynamic Changes. IEEE TRANSACTIONS ON BIOMEDICAL ENGINEERING, VOL. 56, NO. 10, OCTOBER 2009',
     'overlap': 3,
     'interval': 40,
-    'inputs': [{'name': 'pleth', 'type': 'wav'}],
+    'inputs': [{'name': 'PLETH', 'type': 'wav'}],
     'outputs': [{'name': 'rr', 'type': 'num', 'min': 0, 'max': 30, 'unit': '/min'}, {'name': 'pvi', 'type': 'num', 'min': 0, 'max': 30, 'unit': '%'}],
     'pp': 0
 }
@@ -28,8 +28,8 @@ def run(inp, opt, cfg):
     :param art: arterial waveform
     :return: max, min, upper envelope, lower envelope, respiratory rate, ppv
     """
-    data = arr.interp_undefined(inp['pleth']['vals'])
-    srate = inp['pleth']['srate']
+    data = arr.interp_undefined(inp['PLETH']['vals'])
+    srate = inp['PLETH']['srate']
 
     data = arr.resample_hz(data, srate, 100)
     srate = 100

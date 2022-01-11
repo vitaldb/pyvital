@@ -1,4 +1,4 @@
-from .. import arr
+from . import arr
 import numpy as np
 import math
 
@@ -9,7 +9,7 @@ cfg = {
     'reference': '',
     'overlap': 3,
     'interval': 30,
-    'inputs': [{'name': 'art1', 'type': 'wav'}, {'name': 'vent_rr', 'type': 'num'}],
+    'inputs': [{'name': 'ART', 'type': 'wav'}, {'name': 'VENT_RR', 'type': 'num'}],
     'outputs': [
         {'name': 'std', 'type': 'num', 'min':0, 'max':20, 'unit':'mmHg'},
         {'name': 'svv_std', 'type': 'num', 'min':0, 'max':20, 'unit':'%'},
@@ -27,8 +27,8 @@ def run(inp, opt, cfg):
     :param art: arterial waveform
     :return: max, min, upper envelope, lower envelope, respiratory rate, ppv
     """
-    data = arr.interp_undefined(inp['art1']['vals'])
-    srate = inp['art1']['srate']
+    data = arr.interp_undefined(inp['ART']['vals'])
+    srate = inp['ART']['srate']
 
     data = arr.resample_hz(data, srate, 100)
     srate = 100
@@ -58,7 +58,7 @@ def run(inp, opt, cfg):
         lzs.append({'dt':maxidx / srate, 'val': lz})
 
     # estimates resp rate
-    rr = np.median([o['val'] for o in inp['vent_rr']])
+    rr = np.median([o['val'] for o in inp['VENT_RR']])
     if not rr > 1:
         return [[], [], [], []]
 

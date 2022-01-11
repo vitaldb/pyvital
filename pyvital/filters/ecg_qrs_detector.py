@@ -1,4 +1,4 @@
-from .. import arr
+from . import arr
 
 cfg = {
     'name': 'ECG - QRS detector',
@@ -7,14 +7,14 @@ cfg = {
     'reference': 'http://ocw.utm.my/file.php/38/SEB4223/07_ECG_Analysis_1_-_QRS_Detection.ppt%20%5BCompatibility%20Mode%5D.pdf',
     'overlap': 3,  # 3 sec overlap for HR=20
     'interval': 40,
-    'inputs': [{"name": 'ecg', "type": 'wav'}],
+    'inputs': [{"name": 'ECG', "type": 'wav'}],
     'outputs': [{"name": 'Rpeak', "type": 'num', "min": 0, "max": 2}]
 }
 
 
 def run(inp, opt, cfg):
-    data = arr.interp_undefined(inp['ecg']['vals'])
-    srate = inp['ecg']['srate']
+    data = arr.interp_undefined(inp['ECG']['vals'])
+    srate = inp['ECG']['srate']
 
     r_list = arr.detect_qrs(data, srate)  # detect r-peak
     ret_rpeak = []

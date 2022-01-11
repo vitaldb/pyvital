@@ -1,4 +1,4 @@
-from .. import arr
+from . import arr
 import numpy as np
 
 cfg = {

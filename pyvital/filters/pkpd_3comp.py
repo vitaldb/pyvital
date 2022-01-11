@@ -1,4 +1,4 @@
-from .. import arr
+from . import arr
 import numpy as np
 
 last_a1 = 0
@@ -15,8 +15,8 @@ cfg = {
     'overlap': 0,
     'interval': 10,
     'inputs': [
-        {'name': 'pump1_vol', 'type': 'num'},
-        {'name': 'pump1_conc', 'type': 'num'}
+        {'name': 'PUMP1_VOL', 'type': 'num'},
+        {'name': 'PUMP1_CONC', 'type': 'num'}
     ],'options': [
         {'name': 'model', 'sels': 'Marsh/Modified Marsh/Schnider/Paedfusor/Kataria/Kim/Minto', 'init': 'Schnider'},
         {'name': 'age', 'init': 50},
@@ -147,7 +147,7 @@ def run(inp, opt, cfg):
     interval = cfg['interval']
 
     conc = 0
-    for cone in inp['pump1_conc']:
+    for cone in inp['PUMP1_CONC']:
         if cone['val'] > 0:
             conc = cone['val']
             break
@@ -168,7 +168,7 @@ def run(inp, opt, cfg):
     # collect volumes every 1 sec
     vols = [last_vol] + [0] * interval
     for t in range(interval):
-        for vole in inp['pump1_vol']:
+        for vole in inp['PUMP1_VOL']:
             if t < vole['dt'] <= t+1:
                 vols[t+1] = vole['val']
 

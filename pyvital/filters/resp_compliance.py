@@ -1,4 +1,4 @@
-from .. import arr
+from . import arr
 import numpy as np
 import math
 
@@ -10,7 +10,7 @@ cfg = {
     'overlap': 0,
     'interval': 10,
     'inputs': [
-        {'name': 'volume', 'type': 'wav'},
+        {'name': 'VOL', 'type': 'wav'},
         {'name': 'flow', 'type': 'wav'},
         {'name': 'awp', 'type': 'wav'}
     ],
@@ -29,17 +29,17 @@ def run(inp, opt, cfg):
     :param art: arterial waveform
     :return: max, min, upper envelope, lower envelope, respiratory rate, ppv
     """
-    vsrate = inp['volume']['srate']
-    psrate = inp['awp']['srate']
-    fsrate = inp['flow']['srate']
+    vsrate = inp['VOL']['srate']
+    psrate = inp['AWP']['srate']
+    fsrate = inp['AWF']['srate']
     if vsrate != psrate or vsrate != fsrate:
         print("sampling rates of volume, flow and awp are different")
         return
     srate = vsrate
 
-    vdata = arr.interp_undefined(inp['volume']['vals'])
-    fdata = arr.interp_undefined(inp['flow']['vals'])
-    pdata = arr.interp_undefined(inp['awp']['vals'])
+    vdata = arr.interp_undefined(inp['VOL']['vals'])
+    fdata = arr.interp_undefined(inp['AWF']['vals'])
+    pdata = arr.interp_undefined(inp['AWP']['vals'])
 
     # if srate < 200:
     #     vdata = arr.resample_hz(vdata, srate, 200)

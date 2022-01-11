@@ -1,4 +1,4 @@
-from .. import arr
+from . import arr
 import numpy as np
 from math import factorial
 
@@ -9,7 +9,7 @@ cfg = {
     'reference': '',
     'overlap': 58,
     'interval': 60,
-    'inputs': [{'name': 'eeg', 'type': 'wav'}],
+    'inputs': [{'name': 'EEG', 'type': 'wav'}],
     'outputs': [
         {'name': 'TOTPOW', 'type': 'num', 'unit': 'dB', 'min': 0, 'max': 100},
         {'name': 'SEF', 'type': 'num', 'unit': 'Hz', 'min': 0, 'max': 30},
@@ -65,9 +65,9 @@ def repcols(v, nreps):
     return np.tile(v[:, None], nreps)
 
 def run(inp, opt, cfg):
-    data = arr.interp_undefined(inp['eeg']['vals'])
+    data = arr.interp_undefined(inp['EEG']['vals'])
     data -= smooth(np.array(data))
-    srate = int(inp['eeg']['srate'])
+    srate = int(inp['EEG']['srate'])
     nfft = srate * 2  # srate * epoch size
     fres = srate / nfft  # frequency resolution (hz)
 

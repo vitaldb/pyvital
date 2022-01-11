@@ -1,4 +1,4 @@
-from .. import arr
+from . import arr
 import numpy as np
 import math
 
@@ -9,7 +9,7 @@ cfg = {
     'reference': 'Heart rate variability. Standards of measurement, physiological interpretation, and clinical use. European Heart Journal (1996)17,354-381',
     'overlap': 2,  # 2 sec overlap for HR=30
     'interval': 300,  # 5 min
-    'inputs': [{'name': 'ecg', 'type': 'wav'}],
+    'inputs': [{'name': 'ECG', 'type': 'wav'}],
     'outputs': [
         {'name': 'SDNN', 'type': 'num', 'unit': 'ms', 'min': 0, 'max': 100},
         {'name': 'RMSSD', 'type': 'num', 'unit': 'ms', 'min': 0, 'max': 10},
@@ -25,8 +25,8 @@ cfg = {
 
 
 def run(inp, opt, cfg):
-    data = arr.interp_undefined(inp['ecg']['vals'])
-    srate = inp['ecg']['srate']
+    data = arr.interp_undefined(inp['ECG']['vals'])
+    srate = inp['ECG']['srate']
 
     rlist = arr.detect_qrs(data, srate)  # detect r-peaks
 
