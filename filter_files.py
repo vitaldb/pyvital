@@ -1,7 +1,7 @@
 import os
 import vitaldb
 import sys
-import filters.ecg_hrv as f
+import pyvital.filters.ecg_hrv as f
 
 print(f.cfg)
 assert f.cfg['interval'] > f.cfg['overlap']

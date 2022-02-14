@@ -1,5 +1,4 @@
 import sys
-import os.path
 from sanic import Sanic
 from sanic import response
 import json
@@ -10,7 +9,20 @@ import copy
 import gzip
 import time
 
-sys.path.extend(['filters'])
+filter_folder = 'filters'
+server_port = 3000
+
+for arg in sys.argv[1:]:
+    if os.path.isdir(arg):
+        filter_folder = arg
+    elif arg.isdecimal():
+        if 0 < int(arg) < 65535:
+            server_port = int(arg)
+
+print('filter folder : ' + str(filter_folder))
+print('server port : ' + str(server_port))
+
+sys.path.insert(0, filter_folder)
 
 cfgs = {}  # Current settings and data for the module (the corresponding invokeid)
 default_cfgs = {}  # Default settings and data for the module
@@ -18,7 +30,7 @@ mods = {}  # Loaded modules
 mod_cfgs = []  # load module cfgs
 
 # load filters
-for root, dirs, files in os.walk('filters'):
+for root, dirs, files in os.walk(filter_folder):
     for filename in files:
         #filepath = os.path.join(root, filename)
         if filename[-3:] != ".py":
@@ -105,7 +117,6 @@ async def run_filter(request, modname):
     posts = posts.decode('utf-8')
 
     #print('[' + posts + ']')
-
     try:
         posts = json.loads(posts)
     except Exception as e:
@@ -140,4 +151,4 @@ async def run_filter(request, modname):
     return response.raw(ret)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=3000, access_log=False, workers=2)
+    app.run(host="0.0.0.0", port=server_port, access_log=False, workers=2)
