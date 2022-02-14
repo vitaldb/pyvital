@@ -145,7 +145,7 @@ async def run_filter(request, modname):
     opt = []
 
     ret = o.run(inp, opt, cfg)  # evoke run function
-    ret = json.dumps(ret, ignore_nan=True)  # print the result
+    ret = json.dumps(ret)  # print the result
     ret = gzip.compress(ret.encode('utf-8'))
 
     return response.raw(ret)
