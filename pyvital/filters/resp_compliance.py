@@ -1,4 +1,4 @@
-from . import arr
+import pyvital.arr as arr
 import numpy as np
 import math
 
@@ -15,10 +15,10 @@ cfg = {
         {'name': 'awp', 'type': 'wav'}
     ],
     'outputs': [
-        {'name': 'v', 'type': 'num', 'min': 0, 'max': 600, 'unit': 'mL'},
-        {'name': 'c', 'type': 'num', 'min': 0, 'max': 100, 'unit': 'mL/cmH2O'},
-        {'name': 'r', 'type': 'num', 'min': 0, 'max': 20, 'unit': 'cmH2Osec/L'},
-        {'name': 'p0', 'type': 'num', 'min': 0, 'max': 30, 'unit': 'cmH2O'}
+        {'name': 'V', 'type': 'num', 'min': 0, 'max': 600, 'unit': 'mL'},
+        {'name': 'C', 'type': 'num', 'min': 0, 'max': 100, 'unit': 'mL/cmH2O'},
+        {'name': 'R', 'type': 'num', 'min': 0, 'max': 20, 'unit': 'cmH2Osec/L'},
+        {'name': 'P0', 'type': 'num', 'min': 0, 'max': 30, 'unit': 'cmH2O'}
         ]
 }
 

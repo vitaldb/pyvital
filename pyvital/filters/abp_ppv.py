@@ -1,4 +1,4 @@
-from . import arr
+import pyvital.arr as arr
 import numpy as np
 import time
 import scipy.interpolate

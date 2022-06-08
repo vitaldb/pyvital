@@ -1,4 +1,4 @@
-from . import arr
+import pyvital.arr as arr
 import numpy as np
 import math
 
@@ -10,7 +10,7 @@ cfg = {
     'overlap': 3,
     'interval': 40,
     'inputs': [{'name': 'PLETH', 'type': 'wav'}],
-    'outputs': [{'name': 'rr', 'type': 'num', 'min': 0, 'max': 30, 'unit': '/min'}, {'name': 'pvi', 'type': 'num', 'min': 0, 'max': 30, 'unit': '%'}],
+    'outputs': [{'name': 'RR', 'type': 'num', 'min': 0, 'max': 30, 'unit': '/min'}, {'name': 'PVI', 'type': 'num', 'min': 0, 'max': 30, 'unit': '%'}],
     'pp': 0
 }
 

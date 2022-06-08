@@ -1,4 +1,4 @@
-from . import arr
+import pyvital.arr as arr
 import numpy as np
 import math
 
@@ -13,9 +13,9 @@ cfg = {
     'interval': 30,
     'inputs': [{'name': 'PLETH', 'type': 'wav'}],
     'outputs': [
-        {'name': 'delta_pop', 'type': 'num', 'min': 0, 'max': 30, 'unit': '%'},
-        {'name': 'pulse_val', 'type': 'num', 'min': 0, 'max': 100, 'unit': 'mmHg'},
-        {'name': 'rr', 'type': 'num', 'min': 0, 'max': 30, 'unit': '/min'}
+        {'name': 'DELTA_POP', 'type': 'num', 'min': 0, 'max': 30, 'unit': '%'},
+        {'name': 'PULSE_VAL', 'type': 'num', 'min': 0, 'max': 100, 'unit': 'mmHg'},
+        {'name': 'RR', 'type': 'num', 'min': 0, 'max': 30, 'unit': '/min'}
         ]
 }
 

@@ -1,4 +1,4 @@
-from . import arr
+import pyvital.arr as arr
 import numpy as np
 import math
 import copy
@@ -15,11 +15,11 @@ cfg = {
     'interval': 60 * 5,  # 5 min
     'inputs': [{'name': 'ECG', 'type': 'wav'}],
     'outputs': [
-        {'name': 'ecg_filtd', 'type': 'wav'},
-        {'name': 'avg_beat', 'type': 'wav'},
-        {'name': 'peaks', 'type': 'num'},
-        {'name': 'twa_volt', 'type': 'num', 'unit': 'uv', 'min': 0, 'max': 100},
-        {'name': 'twa_ratio', 'type': 'num', 'unit': '', 'min': 0, 'max': 10}
+        {'name': 'ECG_FILTD', 'type': 'wav'},
+        {'name': 'AVG_BEAT', 'type': 'wav'},
+        {'name': 'PEAKS', 'type': 'num'},
+        {'name': 'TWA_VOLT', 'type': 'num', 'unit': 'uv', 'min': 0, 'max': 100},
+        {'name': 'TWA_RATIO', 'type': 'num', 'unit': '', 'min': 0, 'max': 10}
     ]
 }
 

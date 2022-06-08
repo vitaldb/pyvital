@@ -9,7 +9,7 @@ import copy
 import gzip
 import time
 
-filter_folder = 'filters'
+filter_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'filters')
 server_port = 3000
 
 for arg in sys.argv[1:]:
@@ -127,7 +127,6 @@ async def run_filter(request, modname):
     inp = posts['inputs']
     m_modname = os.path.basename(modname)  # module name
 
-    #o = importlib.import_module(m_modname)  # load or reload the module
     o = mods[m_modname]
 
     if invokeid not in cfgs.keys():  # whether this invokeid is a new one?
@@ -143,6 +142,8 @@ async def run_filter(request, modname):
     cfg['invokeid'] = invokeid
 
     opt = []
+    if 'options' in posts:
+        opt = posts['options']
 
     ret = o.run(inp, opt, cfg)  # evoke run function
     ret = json.dumps(ret)  # print the result
@@ -151,4 +152,4 @@ async def run_filter(request, modname):
     return response.raw(ret)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=server_port, access_log=False, workers=2)
+    app.run(host="127.0.0.1", port=server_port, access_log=False)

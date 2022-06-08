@@ -1,4 +1,4 @@
-from . import arr
+import pyvital.arr as arr
 import numpy as np
 
 cfg = {
@@ -10,10 +10,10 @@ cfg = {
     'interval': 30,
     'inputs': [{'name': 'ECG', 'type': 'wav'}, {'name': 'PLETH', 'type': 'wav'}],
     'outputs': [
-        {'name': 'PTT_min', 'type': 'num', 'unit': 'ms', 'min': 100, 'max': 500},
-        {'name': 'PTT_dmax', 'type': 'num', 'unit': 'ms', 'min': 100, 'max': 500},
-        {'name': 'PTT_max', 'type': 'num', 'unit': 'ms', 'min': 100, 'max': 500},
-        {'name': 'R_peak', 'type': 'num', 'min': 0, 'max': 2}
+        {'name': 'PTT_MIN', 'type': 'num', 'unit': 'ms', 'min': 100, 'max': 500},
+        {'name': 'PTT_DMAX', 'type': 'num', 'unit': 'ms', 'min': 100, 'max': 500},
+        {'name': 'PTT_MAX', 'type': 'num', 'unit': 'ms', 'min': 100, 'max': 500},
+        {'name': 'R_PEAK', 'type': 'num', 'min': 0, 'max': 2}
         ]
     }
 

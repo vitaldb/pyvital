@@ -2,14 +2,14 @@ import setuptools
  
 setuptools.setup(
     name="pyvital",
-    version="0.1.2",
+    version="0.1.11",
     author="VitalLab",
     author_email="vital@snu.ac.kr",
     description="Python Libray for Biosignal Analysis",
     long_description="Python Libray for Biosignal Analysis",
     long_description_content_type="text/markdown",
     url="https://github.com/vitaldb/pyvital",
-    install_requires=['numpy','scipy','sanic'],
+    install_requires=['numpy','scipy','sanic','PyWavelets'],
     packages=['pyvital', 'pyvital.filters'],
     classifiers=[
         "Programming Language :: Python :: 3",

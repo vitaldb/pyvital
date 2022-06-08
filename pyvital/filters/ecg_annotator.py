@@ -1,4 +1,4 @@
-from . import arr
+import pyvital.arr as arr
 import numpy as np
 import math
 import copy
@@ -13,7 +13,7 @@ cfg = {
     'overlap': 3,  # 2 sec overlap for HR=30
     'interval': 30,
     'inputs': [{'name': 'ECG', 'type': 'wav'}],
-    'outputs': [{'name': 'ann', 'type': 'str', 'unit': ''}],
+    'outputs': [{'name': 'ANN', 'type': 'str', 'unit': ''}],
     'license': 'GPL'
 }
 

@@ -1,4 +1,4 @@
-from . import arr
+import pyvital.arr as arr
 
 cfg = {
     'name': 'ECG - QRS detector',
@@ -8,7 +8,7 @@ cfg = {
     'overlap': 3,  # 3 sec overlap for HR=20
     'interval': 40,
     'inputs': [{"name": 'ECG', "type": 'wav'}],
-    'outputs': [{"name": 'Rpeak', "type": 'num', "min": 0, "max": 2}]
+    'outputs': [{"name": 'RPEAK', "type": 'num', "min": 0, "max": 2}]
 }
 
 

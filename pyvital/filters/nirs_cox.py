@@ -1,4 +1,4 @@
-from . import arr
+import pyvital.arr as arr
 import numpy as np
 
 cfg = {
@@ -13,11 +13,11 @@ cfg = {
         {'name': 'SCO2_R', 'type': 'num'}
         ],
     'outputs': [
-        {'name': 'mbp', 'type':'num', 'unit':'mmHg'},
-        {'name': 'cox_slope', 'type':'num', 'unit':'%/mmHg', 'min': -1, 'max': 1},
-        {'name': 'cox_pearson', 'type':'num', 'min':-1, 'max':1},
-        {'name': 'art_10sec', 'type':'num', 'unit':'mmHg', 'min': 0, 'max': 150},
-        {'name': 'sco_10sec', 'type':'num', 'unit':'%', 'min':40, 'max':100}
+        {'name': 'MBP', 'type':'num', 'unit':'mmHg'},
+        {'name': 'COX_SLOPE', 'type':'num', 'unit':'%/mmHg', 'min': -1, 'max': 1},
+        {'name': 'COX_PEARSON', 'type':'num', 'min':-1, 'max':1},
+        {'name': 'ART_10SEC', 'type':'num', 'unit':'mmHg', 'min': 0, 'max': 150},
+        {'name': 'SCO_10SEC', 'type':'num', 'unit':'%', 'min':40, 'max':100}
         ]
 }
 

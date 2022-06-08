@@ -1,4 +1,4 @@
-from . import arr
+import pyvital.arr as arr
 import numpy as np
 import scipy.stats as st
 
@@ -47,12 +47,12 @@ cfg = {
     'overlap': 3, # 2 sec overlap for HR=30
     'inputs': [{'name': 'PLETH', 'type': 'wav'}],
     'outputs': [
-        {'name': 'beat', 'type': 'num', 'max':2},
-        {'name': 'ppga', 'type': 'num', 'min':0, 'max':100},
-        {'name': 'hbi', 'type': 'num', 'min':240, 'max':2000},
-        {'name': 'ppga_perc', 'type': 'num', 'min':0, 'max':100},
-        {'name': 'hbi_perc', 'type': 'num', 'min':0, 'max':100},
-        {'name': 'spi', 'type': 'num', 'max':100}
+        {'name': 'BEAT', 'type': 'num', 'max':2},
+        {'name': 'PPGA', 'type': 'num', 'min':0, 'max':100},
+        {'name': 'HBI', 'type': 'num', 'min':240, 'max':2000},
+        {'name': 'PPGA_PERC', 'type': 'num', 'min':0, 'max':100},
+        {'name': 'HBI_PERC', 'type': 'num', 'min':0, 'max':100},
+        {'name': 'SPI', 'type': 'num', 'max':100}
         ]
 }
 

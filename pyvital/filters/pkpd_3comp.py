@@ -1,4 +1,4 @@
-from . import arr
+import pyvital.arr as arr
 import numpy as np
 
 last_a1 = 0
@@ -25,8 +25,8 @@ cfg = {
         {'name': 'wt', 'init': 63}
     ],
     'outputs': [
-        {'name': 'cp', 'type': 'num', 'min': 0, 'max': 10},
-        {'name': 'ce', 'type': 'num', 'min': 0, 'max': 10}
+        {'name': 'CP', 'type': 'num', 'min': 0, 'max': 10},
+        {'name': 'CE', 'type': 'num', 'min': 0, 'max': 10}
         ]
 }
 
