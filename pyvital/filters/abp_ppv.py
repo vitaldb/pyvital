@@ -8,7 +8,7 @@ last_ppv = 0
 last_spv = 0
 
 cfg = {
-    'name': 'Pulse Pressure Variation',
+    'name': 'ART - Pulse Pressure Variation',
     'group': 'ABP',
     'desc': 'Calculate pulse pressure variation using modified version of the method in the reference',
     'reference': 'Aboy et al, An Enhanced Automatic Algorithm for Estimation of Respiratory Variations in Arterial Pulse Pressure During Regions of Abrupt Hemodynamic Changes. IEEE TRANSACTIONS ON BIOMEDICAL ENGINEERING, VOL. 56, NO. 10, OCTOBER 2009',

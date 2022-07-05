@@ -56,18 +56,27 @@ def extend_undefined(a):
     # [np.nan, 1, np.nan, 2, 3, np.nan] -> [ 1.  1. nan  2.  3.  3.]
     if not isinstance(a, np.ndarray):
         a = np.array(a)
-    valid_index = np.where(~np.isnan(a))[0]
+    valid_mask = ~np.isnan(a)
+    if not np.any(valid_mask):
+        return a
+    valid_index = np.where(valid_mask)[0]
     first_valid_index, last_valid_index = valid_index[0], valid_index[-1]
     a[:first_valid_index] = a[first_valid_index]
     a[last_valid_index + 1:] = a[last_valid_index]
     return a
 
 def interp_undefined(a):
+    if not isinstance(a, np.ndarray):
+        a = np.array(a)
     valid_mask = ~np.isnan(a)
+    if not np.any(valid_mask):
+        return a
     return np.interp(np.arange(len(a)), np.arange(len(a))[valid_mask], a[valid_mask])
 
 def ffill(a):
     valid_mask = ~np.isnan(a)
+    if not np.any(valid_mask):
+        return a
     idx = np.where(valid_mask, np.arange(len(a)), 0)
     np.maximum.accumulate(idx, out=idx)
     return a[idx]
@@ -218,78 +227,19 @@ def moving_average(x, N):
     x = np.pad(x, (N//2, N-1-N//2), mode='edge')
     return scipy.ndimage.filters.uniform_filter1d(x, N, mode='constant', origin=-(N//2))[:-(N-1)]
 
-
-def detect_qrs(data, srate):
+def detect_qrs_old(data, srate):
     """
     find qrs and return the indexes
     Pan and Tompkins, A Real-Time QRS Detection Algorithm. IEEE Transactions on Biomedical Engineering BME-32.3 (1985)
     """
+    # maximum ecg voltage 5mV
     y1 = band_pass(data, srate, 5, 15)  # The qrs value must be at 10-20 hz
     y2 = np.convolve(y1, [-2,-1,0,1,2], 'same')  # derivative
     y3 = np.square(y2)  # square
     y4 = moving_average(y3, int(srate * 0.15))  # moving average filter
+    y4[y4 > 5] = 5
+
     p1 = detect_window_maxima(y4, 0.3 * srate)  # find peaks
-
-    min_distance = int(0.25 * srate)
-    p2 = []
-    signal_level = 0.0
-    noise_level = 0.0
-    thval = 0.0
-    rrlast = 0
-    for peak in p1:  # iterate all peaks
-        if y4[peak] > thval and ((len(p2) == 0) or (peak - p2[-1] > 0.3 * srate)):
-            p2.append(peak)
-            # update signal level with cropping
-            signal_level = 0.125 * y4[peak] + 0.875 * signal_level            
-            # find the false negatives
-            if rrlast > 0:  # if there are more than 9 p2
-                if p2[-1] - p2[-2] > int(1.66 * rrlast):
-                    missed_section_peaks = p1[(p2[-2] < p1) & (p1 < p2[-1])]
-                    peak_candidates = []
-                    for missed_peak in missed_section_peaks:
-                        if missed_peak - p2[-2] > min_distance and \
-                            p2[-1] - missed_peak > min_distance and \
-                            y4[missed_peak] > 0.5 * thval:
-                            peak_candidates.append(missed_peak)
-                    if len(peak_candidates) > 0:
-                        missed_peak = peak_candidates[np.argmax(y4[peak_candidates])]
-                        p2.append(p2[-1])
-                        p2[-2] = missed_peak
-                        # we missed some signal
-                        signal_level = 0.125 * y4[missed_peak] + 0.875 * signal_level            
-                        noise_level = 0
-            if len(p2) > 8:
-                rrlast = int(np.mean(np.diff(p2[-9:])))
-        else:
-            noise_level = 0.125 * y4[peak] + 0.875 * noise_level
-        
-        thval = noise_level + 0.25 * (signal_level - noise_level)
-        #print(f'@{peak}, signal_level={signal_level:.3f}, thval={thval:.3f}, noise_level={noise_level:.3f}, y4[peak]={y4[peak]:.3f}')
-
-    # find the nearest extreme within 150ms
-    # it should be based on the filterd signal because it is centered
-    p3 = []
-    ya = np.abs(y1)
-    for i in p2:
-        cand1 = max_idx(ya, i - int(srate * 0.15), i + int(srate * 0.15))
-        cand2 = max_idx(y1, i - int(srate * 0.15), i + int(srate * 0.15))
-        if abs(i - cand1) < abs(i - cand2):
-            p3.append(cand1)
-        else:
-            p3.append(cand2)
-
-    return p3
-    #return y1, y2, y3, y4, p1, p2, p3
-
-    # find closest peak within 80 ms
-    p3 = []
-    last = -1
-    pcand = detect_window_maxima(data, 0.08 * srate)  # 80 ms local peak
-    for x in p2:
-        idx_cand = find_nearest(pcand, x)
-        if idx_cand != last:
-            p3.append(idx_cand)
-        last = idx_cand
 
     # threshold -> 0.5 times the median value of the peak within 10 seconds before and after
     p2 = []
@@ -337,6 +287,66 @@ def detect_qrs(data, srate):
                 i -= 1
         i += 1
     return p4
+
+
+def detect_qrs(data, srate):
+    """
+    find qrs and return the indexes
+    Pan and Tompkins, A Real-Time QRS Detection Algorithm. IEEE Transactions on Biomedical Engineering BME-32.3 (1985)
+    """
+    if np.isnan(data).all():
+        return []
+
+    y0 = data
+    y1 = band_pass(y0, srate, 5, 15)  # The qrs value must be at 5-15 hz
+    y2 = np.convolve(y1, [-2,-1,0,1,2], 'same')  # derivative
+    y3 = np.square(y2)  # square
+    y4 = moving_average(y3, int(srate * 0.15))  # moving average filter
+    
+    # removing erractic noise in signal
+    noise_mask = (y4 > 3)  # it never goes larger than 3
+    if noise_mask.any():
+        noise_mask = np.convolve(noise_mask, np.ones(int(srate * 2)), 'same').astype(bool)  # expand erractic_mask
+        y4[noise_mask] = 0
+
+    p1 = detect_window_maxima(y4, 0.3 * srate)  # find peaks
+    
+    if len(p1): # QRS amplitude should be at least 0.4 mV
+        valid_mask = y4[p1] > 0.1
+        p1 = p1[valid_mask]
+
+    min_distance = int(0.25 * srate)
+    p2 = []
+    spki = 0
+    npki = 0
+    thval = 0
+    for peak in p1:  # iterate all peaks
+        if (len(p2) == 0) or (y4[peak] > thval):
+            p2.append(peak)
+            spki = 0.125 * y4[peak] + 0.875 * spki  # update signal level with cropping
+        elif (len(p2) > 8) and ((peak - p2[-1] > 5 * srate) or (peak - p2[-1] > 1.66 * int(np.mean(np.diff(p2[-9:]))))) and (y4[peak] > 0.5 * thval):  
+            # we missed some signal
+            p2.append(peak)
+            spki = 0.25 * y4[peak] + 0.75 * spki
+            npki = 0.01
+        else:  # otherwise, it must be a noise
+            npki = 0.125 * y4[peak] + 0.875 * npki
+        thval = npki + 0.25 * (spki - npki)  # recalculate the threshold
+        #print(f'{t} @{peak}, spki={spki:.3f}, npki={npki:.3f}, y4[peak]={y4[peak]:.3f} -> thval={thval:.3f}')
+
+    # find the nearest extreme within 150ms
+    # it should be based on the filterd signal because it is centered
+    p3 = []
+    ya = np.abs(y0)
+    for i in p2:
+        cand1 = max_idx(ya, i - int(srate * 0.15), i + int(srate * 0.15))
+        cand2 = max_idx(y0, i - int(srate * 0.15), i + int(srate * 0.15))
+        if abs(i - cand1) < abs(i - cand2):
+            p3.append(cand1)
+        else:
+            p3.append(cand2)
+
+    return p3
 
 
 def remove_wander_spline(data, srate):
@@ -666,12 +676,11 @@ def estimate_resp_rate(data, srate):
     filted = band_pass(data, srate, 0.1, 0.5)
 
     # find maxima
-    maxlist = detect_maxima(filted)
+    maxlist = list(detect_maxima(filted))
     minlist = []  # find minima
     for i in range(len(maxlist) - 1):
         minlist.append(min_idx(data, maxlist[i] + 1, maxlist[i+1]))
-    extrema = maxlist + minlist
-    extrema.sort()  # min, max, min, max
+    extrema = sorted(maxlist + minlist)
 
     while len(extrema) >= 4:
         diffs = []  # diffs of absolute value
@@ -727,17 +736,46 @@ def estimate_resp_rate(data, srate):
 
 
 if __name__ == '__main__':
-    import pandas as pd
+    import vitaldb
+    srate = 100
+    vals = vitaldb.load_case(1, ['SNUADC/ECG_II','SNUADC/ART'], 1 / srate)
+    art = vals[300000:306000, 1]
 
-    df_trks = pd.read_csv("https://api.vitaldb.net/trks")
+    import filters.abp_ppv as f
+    res = f.run({'ART':{'srate':100, 'vals':art}}, {}, f.cfg)
+    print(res[0])
+    quit()
 
-    caseid = 1
+    ecg = vals[110000:111000, 0]
+    ecg = interp_undefined(ecg)
+    peaks = detect_qrs(ecg, srate) # find qrs and return the indexes
+    
+    import matplotlib.pyplot as plt
+    plt.figure(figsize=(15,5))
+    plt.plot(ecg, color='g')
+    plt.plot(peaks, [ecg[i] for i in peaks], 'ro')
+    plt.show()
+    quit()
+
+    import filters.ecg_hrv as f
+    for i in range(0, len(ecg), INTERVAL):
+       print(f.run({f.cfg['inputs'][0]['name']: {'srate':500.0, 'vals': ecg[i:i+INTERVAL,1]}}, {}, f.cfg))
+    quit()
+
+    import matplotlib.pyplot as plt
+    plt.figure(figsize=(15,5))
+    plt.plot(sig, label='ecg')
+    plt.plot(p2, sig[p2], 'rx')
+    plt.legend()
+    plt.show()
+
+    quit()
+
     tid = df_trks[(df_trks['caseid'] == caseid) & (df_trks['tname'] == 'SNUADC/ART')]['tid'].values[0]
-    vals = pd.read_csv('https://api.vitaldb.net/' + tid).values
+    art = pd.read_csv('https://api.vitaldb.net/' + tid).values[:,1]
 
     srate = 500
 
-    art = vals[:,1]
     art = exclude_undefined(art)
     # peaks = detect_peaks(art, srate)
     # print(peaks)
@@ -751,10 +789,3 @@ if __name__ == '__main__':
     peaks = detect_peaks(art, srate)
 
     print(peaks)
-
-    import matplotlib.pyplot as plt
-    plt.figure(figsize=(15,5))
-    plt.plot(art, color='r')
-    plt.plot(peaks[0], [art[i] for i in peaks[0]], 'bo')
-    plt.plot(peaks[1], [art[i] for i in peaks[1]], 'go')
-    plt.show()

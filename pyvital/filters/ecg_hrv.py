@@ -30,6 +30,16 @@ def run(inp, opt, cfg):
 
     rlist = arr.detect_qrs(data, srate)  # detect r-peaks
 
+    # import matplotlib.pyplot as plt
+    # plt.figure(figsize=(50,30))
+    # plt.plot(data, label='y')
+    # for ann in rlist:
+    #     plt.plot(ann, data[ann], 'ro')
+    # plt.show()
+    # plt.legend()
+    # plt.savefig(f'mit-bih_img/{fileid}.png', bbox_inches='tight')
+    # plt.close()
+
     # remove qrs before and after overlap
     new_rlist = []
     for ridx in rlist:
@@ -72,7 +82,7 @@ def run(inp, opt, cfg):
 
     # make time domain nni_data function by linear interpolation (200 hz)
     nni_srate = 200
-    nni_data = [None] * int(math.ceil(len(data) / srate * nni_srate))
+    nni_data = [np.nan] * int(math.ceil(len(data) / srate * nni_srate))
     for nni in ret_nni:
         nni_data[int(nni['dt'] * nni_srate)] = nni['val']
     nni_data = arr.interp_undefined(nni_data)

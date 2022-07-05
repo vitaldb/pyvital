@@ -3,7 +3,7 @@ import numpy as np
 import math
 
 cfg = {
-    'name': 'Resp - Intratidal Compliance Profiles',
+    'name': 'RESP - Intratidal Compliance Profiles',
     'group': 'Medical algorithms',
     'desc': 'Calculate intratidal compliance using gliding-SLICE method',
     'reference': 'Schumann et al, Estimating intratidal nonlinearity of respiratory system mechanics: a model study using the enhanced gliding-SLICE method. Physiological measurement, 30 (2009) 1341-56',

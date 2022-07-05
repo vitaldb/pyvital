@@ -40,7 +40,7 @@ class Histogram:
 
 
 cfg = {
-    'name': 'Pleth - Surgical Pleth Index',
+    'name': 'PLETH - Surgical Pleth Index',
     'group': 'Medical algorithms',
     'reference': 'Br J Anaesth. 2007 Apr98(4):447-55',
     'interval': 30, # for 4096 sample/call

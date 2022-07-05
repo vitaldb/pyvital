@@ -2,7 +2,7 @@ import pyvital.arr as arr
 import numpy as np
 
 cfg = {
-    'name': 'Pleth - Pulse Transit Time',
+    'name': 'PLETH - Pulse Transit Time',
     'group': 'Medical algorithms',
     'desc': 'Calculate pulse transit time.',
     'reference': '',
