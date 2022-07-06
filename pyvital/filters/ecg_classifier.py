@@ -13,10 +13,10 @@ cfg = {
     'interval': 15,
     'inputs': [{'name': 'ECG', 'type': 'wav'}],
     'outputs': [
-        {'name': 'BEAT', 'type': 'str'}, 
-        {'name': 'BTYPE', 'type': 'num', 'min':-1, 'max':3},
         {'name': 'RHYTHM', 'type': 'str'}, 
+        {'name': 'BEAT', 'type': 'str'}, 
         {'name': 'RTYPE', 'type': 'num', 'min':-1, 'max':4},
+        {'name': 'BTYPE', 'type': 'num', 'min':-1, 'max':3},
         ]
 }
 
@@ -46,10 +46,10 @@ def run(inp, opt, cfg):
         return
 
     # output tracks
-    out1 = []
-    out2 = []
-    out3 = []
-    out4 = []
+    out_bstr = []
+    out_bnum = []
+    out_rstr = []
+    out_rnum = []
 
     # collect beat samples
     x = []
@@ -79,8 +79,8 @@ def run(inp, opt, cfg):
                 s = 'V'
             else:
                 continue
-            out1.append({'dt': peaks[i] / srate, 'val': s})
-            out2.append({'dt': peaks[i] / srate, 'val': y[i]})
+            out_bstr.append({'dt': peaks[i] / srate, 'val': s})
+            out_bnum.append({'dt': peaks[i] / srate, 'val': y[i]})
 
     # rhythm label
     if len(peaks) >= 3:
@@ -113,10 +113,10 @@ def run(inp, opt, cfg):
                         s = 'Noise'
                     else:
                         continue
-                    out3.append({'dt': i * seglen / srate, 'val': s})
-                    out4.append({'dt': i * seglen / srate, 'val': y[i]})
+                    out_rstr.append({'dt': i * seglen / srate, 'val': s})
+                    out_rnum.append({'dt': i * seglen / srate, 'val': y[i]})
 
-    return [out1, out2, out3, out4]
+    return [out_rstr, out_bstr, out_rnum, out_bnum]
 
 
 if __name__ == '__main__':
