@@ -25,8 +25,13 @@ cfg = {
 
 
 def run(inp, opt, cfg):
-    data = arr.interp_undefined(inp['ECG']['vals'])
-    srate = inp['ECG']['srate']
+    trk_name = [k for k in inp][0]
+
+    if 'srate' not in inp[trk_name]:
+        return
+
+    data = arr.interp_undefined(inp[trk_name]['vals'])
+    srate = inp[trk_name]['srate']
 
     rlist = arr.detect_qrs(data, srate)  # detect r-peaks
 
