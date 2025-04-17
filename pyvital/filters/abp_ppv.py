@@ -31,8 +31,13 @@ def run(inp, opt, cfg):
     """
     global last_ppv, last_spv
 
-    data = arr.interp_undefined(inp['ART']['vals'])
-    srate = inp['ART']['srate']
+    trk_name = [k for k in inp][0]
+    
+    if 'srate' not in inp[trk_name]:
+        return
+
+    data = arr.interp_undefined(inp[trk_name]['vals'])
+    srate = inp[trk_name]['srate']
 
     data = arr.resample_hz(data, srate, 100)
     srate = 100

@@ -152,4 +152,4 @@ async def run_filter(request, modname):
     return response.raw(ret)
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=server_port, access_log=False)
+    app.run(host="0.0.0.0", port=server_port, access_log=False)

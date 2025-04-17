@@ -65,9 +65,14 @@ def repcols(v, nreps):
     return np.tile(v[:, None], nreps)
 
 def run(inp, opt, cfg):
-    data = arr.interp_undefined(inp['EEG']['vals'])
+    trk_name = [k for k in inp][0]
+
+    if 'srate' not in inp[trk_name]:
+        return
+
+    data = arr.interp_undefined(inp[trk_name]['vals'])
     data -= smooth(np.array(data))
-    srate = int(inp['EEG']['srate'])
+    srate = int(inp[trk_name]['srate'])
     nfft = srate * 2  # srate * epoch size
     fres = srate / nfft  # frequency resolution (hz)
 

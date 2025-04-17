@@ -19,11 +19,16 @@ cfg = {
 
 
 def run(inp, opt, cfg):
-    ecg_data = arr.interp_undefined(inp['ECG']['vals'])
-    ecg_srate = inp['ECG']['srate']
+    trk_names = [k for k in inp]
+    
+    if 'srate' not in inp[trk_names[0]] or 'srate' not in inp[trk_names[1]]:
+        return
 
-    pleth_data = arr.interp_undefined(inp['PLETH']['vals'])
-    pleth_srate = inp['PLETH']['srate']
+    ecg_data = arr.interp_undefined(inp[trk_names[0]]['vals'])
+    ecg_srate = inp[trk_names[0]]['srate']
+
+    pleth_data = arr.interp_undefined(inp[trk_names[1]]['vals'])
+    pleth_srate = inp[trk_names[1]]['srate']
     pleth_data = arr.band_pass(pleth_data, pleth_srate, 0.5, 15)
 
     ecg_rlist = arr.detect_qrs(ecg_data, ecg_srate)
