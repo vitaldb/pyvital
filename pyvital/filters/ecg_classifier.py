@@ -39,6 +39,8 @@ def run(inp, opt, cfg):
     srate = 100
 
     # detect r-peaks
+    if len(data) < 200:
+        return
     peaks = np.array(arr.detect_qrs(data, srate), dtype=int)
     valid_mask = (srate <= peaks) & (peaks < len(data) - srate)
     peaks = peaks[valid_mask]  # remove qrs before overlap
@@ -67,7 +69,7 @@ def run(inp, opt, cfg):
         x = x[..., None]  # add dimension for cnn
 
         # predict
-        y = np.argmax(model_beat.predict(x), axis=1)
+        y = np.argmax(model_beat.predict(x, verbose=0), axis=1)
         
         # beat label
         for i in range(len(y)):
@@ -101,7 +103,7 @@ def run(inp, opt, cfg):
                 x = x[..., None]  # add dimension for cnn
 
                 # prediction
-                y = np.argmax(model_rhythm.predict(x), axis=1)
+                y = np.argmax(model_rhythm.predict(x, verbose=0), axis=1)
                 for i in range(len(y)):
                     if y[i] == 0:
                         s = 'SR'

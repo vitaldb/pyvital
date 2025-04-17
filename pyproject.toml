@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools"]
+
+[project]
+name = "pyvital"
+version = "0.3.6"
+description = "Python Libray for Biosignal Analysis"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+authors = [
+    {name = "VitalLab", email = "vital@snu.ac.kr"}
+]
+dependencies = ['numpy','scipy','sanic','PyWavelets','tensorflow>=2.6','keras','torch']
+
+[tool.setuptools]
+packages = ["pyvital", "pyvital.filters"]
+
+[tool.setuptools.package-data]
+"pyvital.filters" = ["*.h5", "*.pth"]
