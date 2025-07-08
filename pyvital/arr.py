@@ -67,6 +67,8 @@ def extend_undefined(a):
 
 def interp_undefined(a):
     if not isinstance(a, np.ndarray):
+        # Convert None values to np.nan for consistent handling
+        a = [x if x is not None else np.nan for x in a]
         a = np.array(a)
     valid_mask = ~np.isnan(a)
     if not np.any(valid_mask):
