@@ -145,7 +145,10 @@ def run(inp, opt, cfg):
             nn50 += 1
         ret_dnni.append({'dt': ret_nni[i+1]['dt'], 'val': dnni})
 
-    pnn50 = nn50 * 100 / len(dnni_list)
+    if len(dnni_list) > 0:
+        pnn50 = nn50 * 100 / len(dnni_list)
+    else:
+        pnn50 = 0
 
     rmssdnni = 0
     if len(dnni_list) > 0:
