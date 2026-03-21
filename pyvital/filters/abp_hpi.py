@@ -1,6 +1,6 @@
 import os
 import sys
-import pyvital.arr as arr
+import pyvital as arr
 import torch
 import numpy as np
 import pandas as pd

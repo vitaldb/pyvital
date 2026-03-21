@@ -2,7 +2,7 @@ import numpy as np
 import vitaldb
 import os
 import torch
-import pyvital.arr
+import pyvital
 import torch.nn.functional as F
 import torch.nn as nn
 from scipy.signal import butter, filtfilt, iirnotch, find_peaks
@@ -275,7 +275,7 @@ def run(inp, opt, cfg):
     srate_orig = inp[trk_name]['srate']
     srate = 100
     if srate_orig != srate:
-        data = pyvital.arr.resample_hz(data, srate_orig, srate)
+        data = pyvital.resample_hz(data, srate_orig, srate)
 
     # --- 모델 로드 ---
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

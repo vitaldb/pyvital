@@ -1,4 +1,4 @@
-import pyvital.arr as arr
+import pyvital as arr
 import numpy as np
 
 last_a1 = 0

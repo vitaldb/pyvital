@@ -1,4 +1,4 @@
-import pyvital.arr as arr
+import pyvital as arr
 import numpy as np
 from math import factorial
 
@@ -87,16 +87,15 @@ def run(inp, opt, cfg):
         dft[0] = 0  # dc 성분은 지움
         ps.append(2 * np.abs(dft) ** 2) # 파워의 절대값인데 절반 날렸으므로
     ps = np.mean(np.array(ps), axis=0)
-    pssum = np.cumsum(ps)  # cummulative sum
-    pssum = pssum[1:]
+    pssum = np.cumsum(ps)  # cumulative sum. pssum[k] = power from 0 to k*fres
     totpow = pssum[fromhz(30, fres)]
     sef = tohz(np.argmax(pssum > 0.95 * totpow), fres)
     mf = tohz(np.argmax(pssum > 0.5 * totpow), fres)
 
-    delta = pssum[fromhz(4, fres) - 1] / pssum[-1] * 100
-    theta = (pssum[fromhz(8, fres) - 1] - pssum[fromhz(4, fres)]) / pssum[-1] * 100
-    alpha = (pssum[fromhz(12, fres) - 1] - pssum[fromhz(8, fres)]) / pssum[-1] * 100
-    beta = (pssum[fromhz(30, fres) - 1] - pssum[fromhz(12, fres)]) / pssum[-1] * 100
+    delta = pssum[fromhz(4, fres)] / pssum[-1] * 100
+    theta = (pssum[fromhz(8, fres)] - pssum[fromhz(4, fres)]) / pssum[-1] * 100
+    alpha = (pssum[fromhz(12, fres)] - pssum[fromhz(8, fres)]) / pssum[-1] * 100
+    beta = (pssum[fromhz(30, fres)] - pssum[fromhz(12, fres)]) / pssum[-1] * 100
     gamma = (pssum[-1] - pssum[fromhz(30, fres)]) / pssum[-1] * 100
 
     # pttmax_list.append()
@@ -104,14 +103,14 @@ def run(inp, opt, cfg):
     # pttmin_list.append({'dt': min_dt, 'val': (min_dt - rpeak_dt) * 1000})
     #
     return [
-        [{'dt': cfg['interval'], 'val': 10 * np.log10(totpow)}],
-        [{'dt': cfg['interval'], 'val': sef}],
-        [{'dt': cfg['interval'], 'val': mf}],
-        [{'dt': cfg['interval'], 'val': delta}],
-        [{'dt': cfg['interval'], 'val': theta}],
-        [{'dt': cfg['interval'], 'val': alpha}],
-        [{'dt': cfg['interval'], 'val': beta}],
-        [{'dt': cfg['interval'], 'val': gamma}]
+        [{'dt': cfg['interval'], 'val': 10 * np.log10(totpow)}],  # TOTPOW: 0-30Hz total power (dB)
+        [{'dt': cfg['interval'], 'val': sef}],   # SEF: 95% spectral edge frequency (Hz)
+        [{'dt': cfg['interval'], 'val': mf}],    # MF: 50% median frequency (Hz)
+        [{'dt': cfg['interval'], 'val': delta}],  # DELTA: 0-4Hz relative power (%)
+        [{'dt': cfg['interval'], 'val': theta}],  # THETA: 4-8Hz relative power (%)
+        [{'dt': cfg['interval'], 'val': alpha}],  # ALPHA: 8-12Hz relative power (%)
+        [{'dt': cfg['interval'], 'val': beta}],   # BETA: 12-30Hz relative power (%)
+        [{'dt': cfg['interval'], 'val': gamma}]   # GAMMA: 30Hz-Nyquist relative power (%)
     ]
     # pttmin_list,
     # pttdmax_list,

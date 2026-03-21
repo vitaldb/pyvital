@@ -1,6 +1,6 @@
 import os
 import sys
-import pyvital.arr as arr
+import pyvital as arr
 import numpy as np
 import torch
 import torch.nn as nn

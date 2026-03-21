@@ -1,4 +1,4 @@
-import pyvital.arr as arr
+import pyvital as arr
 
 cfg = {
     'name': 'ECG - QRS detector',
